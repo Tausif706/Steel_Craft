@@ -57,20 +57,24 @@ export default function ProductDetail() {
   const outOfStock = p.stock !== undefined && p.stock <= 0;
 
   const handleCart = () => {
+    if (!p) return;
     if (outOfStock) { notify('This item is currently out of stock', 'error'); return; }
     for (let i = 0; i < qty; i++) dispatch(cartActions.addToCart(p));
     notify(`Added ${qty}× ${p.n} to cart! 🛒`);
   };
   const handleWish = () => {
+    if (!p) return;
     dispatch(wishActions.toggleWish(p));
     notify(isWish ? 'Removed from wishlist' : 'Saved to wishlist! ❤️', isWish ? 'info' : 'ok');
   };
   const handleCompare = () => {
+    if (!p) return;
     if (!isCmp && cmpCount >= 3) { notify('Max 3 products for comparison', 'info'); return; }
     dispatch(compareActions.toggleCompare(p));
   };
 
   async function handleSubmitReview() {
+    if (!p) return;
     if (!myReviewText.trim()) { notify('Write a few words about the product', 'info'); return; }
     setSubmittingReview(true);
     try {
