@@ -1,0 +1,266 @@
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap';
+@import 'leaflet/dist/leaflet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════
+   3-TIER COLOR SYSTEM
+   Light  → page backgrounds and surface layers
+   Medium → primary navy (--dk) used for nav, headers, dark cards
+   Dark   → deep charcoal used for footer, code, extreme dark areas
+   Accent → gold (--ac) call-to-actions, highlights
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Light tier (L1 = lightest bg, L3 = darkest surface) */
+  --bg : #F6F8FF;   /* page canvas         */
+  --bg2: #EDF0FB;   /* section alternator  */
+  --bg3: #E2E7F5;   /* deep surface, chips */
+
+  /* ── Surfaces (cards, inputs, modals)                          */
+  --sf : #FFFFFF;
+  --sf2: #EEF1FA;
+
+  /* ── Borders                                                   */
+  --br : rgba(13,40,71,.10);
+  --br2: rgba(13,40,71,.22);
+
+  /* ── Medium tier — Navy                                        */
+  --dk : #0D2847;
+  --dk2: #1A3D6B;
+  --dk3: #254E88;
+
+  /* ── Accent — Gold                                             */
+  --ac : #C8820A;
+  --ac2: #DA9418;
+  --ac3: #F5A623;
+
+  /* ── Text                                                      */
+  --tx : #0F172A;
+  --tx2: #3E4F68;
+  --tx3: #7F92AB;
+
+  /* ── Semantic                                                  */
+  --re : #DC2626;
+  --gr : #16A34A;
+
+  /* ── Elevation shadows (light / medium / heavy)                */
+  --s1 : 0 1px 3px rgba(13,40,71,.06), 0 1px 2px rgba(13,40,71,.04);
+  --s2 : 0 4px 12px rgba(13,40,71,.08), 0 2px 4px rgba(13,40,71,.05);
+  --s3 : 0 8px 28px rgba(13,40,71,.12), 0 4px 8px rgba(13,40,71,.06);
+  --s4 : 0 16px 48px rgba(13,40,71,.16), 0 8px 16px rgba(13,40,71,.08);
+
+  /* ── Card hover glow (uses accent color)                       */
+  --card-glow: 0 0 0 1.5px rgba(200,130,10,.30), 0 8px 28px rgba(200,130,10,.10);
+}
+
+/* ── Dark mode overrides                                         */
+.dark {
+  --bg : #070F1F;
+  --bg2: #0C1828;
+  --bg3: #111F35;
+
+  --sf : #101D33;
+  --sf2: #172437;
+
+  --br : rgba(255,255,255,.09);
+  --br2: rgba(255,255,255,.18);
+
+  --dk : #1A3D6B;
+  --dk2: #254E88;
+  --dk3: #2F60A8;
+
+  --tx : #E8F0FF;
+  --tx2: #7FA3C4;
+  --tx3: #3D5870;
+
+  --s1 : 0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --s2 : 0 4px 12px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.3);
+  --s3 : 0 8px 28px rgba(0,0,0,.55), 0 4px 8px rgba(0,0,0,.35);
+  --s4 : 0 16px 48px rgba(0,0,0,.65), 0 8px 16px rgba(0,0,0,.4);
+  --card-glow: 0 0 0 1.5px rgba(200,130,10,.40), 0 8px 28px rgba(200,130,10,.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET + BASE
+   ═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+html, body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  scroll-behavior: smooth;
+}
+button, a { cursor: pointer; font-family: inherit; text-decoration: none; border: none; background: none; }
+input, textarea, select { font-family: inherit; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--br2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--tx3); }
+.no-scrollbar { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD SYSTEM — 3 levels of elevation
+   .card-sm   — inline chips, small tiles
+   .card-md   — product cards, list items  (default)
+   .card-lg   — modals, sheets, panels
+   ═══════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--sf);
+  border: 1px solid var(--br);
+  border-radius: 16px;
+  box-shadow: var(--s1);
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.card:where([role="button"], button, a, .clickable) {
+  cursor: pointer;
+}
+.card:where([role="button"], button, a, .clickable):hover,
+.card.hover\:lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-glow);
+  border-color: rgba(200,130,10,.30);
+}
+.card-sm { border-radius: 12px; }
+.card-lg { border-radius: 20px; box-shadow: var(--s3); }
+
+/* Glass surface — used for fixed bars, overlays                  */
+.glass {
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,.55);
+}
+.dark .glass {
+  background: rgba(16,29,51,.88);
+  border-color: rgba(255,255,255,.10);
+}
+
+/* Inset divider line                                             */
+.divider { height: 1px; background: var(--br); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SHADOWS — utility aliases
+   ═══════════════════════════════════════════════════════════════ */
+.shadow-s1 { box-shadow: var(--s1); }
+.shadow-s2 { box-shadow: var(--s2); }
+.shadow-s3 { box-shadow: var(--s3); }
+.shadow-s4 { box-shadow: var(--s4); }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION KEYFRAMES
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes slideUp   { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideIn   { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+@keyframes spinAnim  { to{transform:rotate(360deg)} }
+@keyframes pulseAnim { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+@keyframes shimmer   { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+
+.animate-up         { animation: slideUp   .26s cubic-bezier(.16,1,.3,1); }
+.animate-down       { animation: slideDown .22s ease; }
+.animate-ni         { animation: slideIn   .22s ease; }
+.animate-fade       { animation: fadeIn    .2s ease; }
+.animate-spin-custom{ animation: spinAnim  .85s linear infinite; }
+.animate-pulse-wa   { animation: pulseAnim 3s infinite; }
+
+/* Skeleton loading shimmer */
+.shimmer {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--bg2) 50%, var(--bg3) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FORM ELEMENTS — focus ring system
+   ═══════════════════════════════════════════════════════════════ */
+.sc-input {
+  width: 100%;
+  padding: .625rem .75rem;
+  border: 1.5px solid var(--br);
+  border-radius: 10px;
+  font-size: .84375rem; /* 13.5px */
+  background: var(--sf);
+  color: var(--tx);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  line-height: 1.5;
+}
+.sc-input:focus {
+  border-color: var(--dk);
+  box-shadow: 0 0 0 3px rgba(13,40,71,.10);
+}
+.sc-input.error {
+  border-color: var(--re);
+  box-shadow: 0 0 0 3px rgba(220,38,38,.10);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOGGLE SWITCH
+   ═══════════════════════════════════════════════════════════════ */
+.tsw { position: relative; width: 42px; height: 23px; flex-shrink: 0; }
+.tsw input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ts-t {
+  display: block; width: 42px; height: 23px;
+  background: var(--br2); border-radius: 12px;
+  cursor: pointer; transition: background .22s; position: relative;
+}
+.tsw input:checked ~ .ts-t { background: var(--ac); }
+.ts-th {
+  position: absolute; top: 2.5px; left: 2.5px;
+  width: 18px; height: 18px; background: #fff; border-radius: 50%;
+  transition: transform .22s; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.tsw input:checked ~ .ts-t .ts-th { transform: translateX(19px); }
+
+/* ═══════════════════════════════════════════════════════════════
+   BADGE
+   ═══════════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 10.5px; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px;
+  line-height: 1.6; white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEAFLET
+   ═══════════════════════════════════════════════════════════════ */
+.leaflet-container { z-index: 0!important; border-radius: 16px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   GRADIENT TEXT UTILITY
+   ═══════════════════════════════════════════════════════════════ */
+.text-gradient {
+  background: linear-gradient(135deg, var(--dk) 0%, var(--ac) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GRADIENT ACCENT LINE (decorative top border on cards)
+   ═══════════════════════════════════════════════════════════════ */
+.accent-bar::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--dk) 0%, var(--ac) 60%, var(--ac3) 100%);
+  border-radius: 3px 3px 0 0;
+  margin-bottom: .75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOPBAR — scroll transition helper
+   ═══════════════════════════════════════════════════════════════ */
+.topbar-hidden  { transform: translateY(-100%); }
+.topbar-visible { transform: translateY(0); }
